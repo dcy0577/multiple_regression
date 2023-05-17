@@ -36,9 +36,9 @@ class BostonDataset(T.utils.data.Dataset):
 class Net(T.nn.Module):
   def __init__(self):
     super(Net, self).__init__()
-    self.hid1 = T.nn.Linear(12, 1024)  # 12-(10-10)-2
-    self.hid2 = T.nn.Linear(1024, 512)
-    self.hid3 = T.nn.Linear(512, 256)
+    self.hid1 = T.nn.Linear(12, 256)  # 12-(10-10)-2
+    self.hid2 = T.nn.Linear(256, 256)
+    self.hid3 = T.nn.Linear(256, 256)
     self.hid4 = T.nn.Linear(256, 128)
     self.hid5 = T.nn.Linear(128, 64)
     self.oupt = T.nn.Linear(64, 2)
@@ -173,7 +173,7 @@ def main():
   print("max epochs = 5000 ")
 
   print("\nStarting training ")
-  train(net, train_ds, test_ds, bs=30, lr=0.005, me=5000, le=200)
+  train(net, train_ds, test_ds, bs=50, lr=0.0005, me=5000, le=200)
   print("Done ")
 
   # 4. model accuracy
