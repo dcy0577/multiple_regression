@@ -6,6 +6,7 @@ import numpy as np
 import torch as T
 from sklearn import preprocessing
 import torch.multiprocessing as mp
+from utils import draw_loss_curve
 
 
 device = T.device('cuda')
@@ -35,12 +36,12 @@ class BostonDataset(T.utils.data.Dataset):
 class Net(T.nn.Module):
   def __init__(self):
     super(Net, self).__init__()
-    self.hid1 = T.nn.Linear(12, 512)  # 12-(10-10)-2
-    self.hid2 = T.nn.Linear(512, 512)
-    self.hid3 = T.nn.Linear(512, 512)
-    self.hid4 = T.nn.Linear(512, 512)
-    self.hid5 = T.nn.Linear(512, 512)
-    self.oupt = T.nn.Linear(512, 2)
+    self.hid1 = T.nn.Linear(12, 1024)  # 12-(10-10)-2
+    self.hid2 = T.nn.Linear(1024, 512)
+    self.hid3 = T.nn.Linear(512, 256)
+    self.hid4 = T.nn.Linear(256, 128)
+    self.hid5 = T.nn.Linear(128, 64)
+    self.oupt = T.nn.Linear(64, 2)
     self.drop_out = T.nn.Dropout(p=0.2)
 
 
@@ -59,7 +60,7 @@ class Net(T.nn.Module):
 
   def forward(self, x):
     z = T.relu(self.hid1(x))
-    z = self.drop_out(z) 
+    # z = self.drop_out(z) 
     z = T.relu(self.hid2(z))
     z = self.drop_out(z) 
     z = T.relu(self.hid3(z))
@@ -67,7 +68,7 @@ class Net(T.nn.Module):
     z = T.relu(self.hid4(z))
     z = self.drop_out(z) 
     z = T.relu(self.hid5(z))
-    z = self.drop_out(z) 
+    # z = self.drop_out(z) 
     z = self.oupt(z)  # no activation, aka Identity()
     return z
 
@@ -95,8 +96,9 @@ def train(model, train_ds, val_ds, bs, lr, me, le):
   # loss_func = T.nn.L1Loss()  # mean avg error
   loss_func = T.nn.MSELoss()  # mse
   # loss_func = T.nn.SmoothL1Loss()  # mae mse
-  optimizer = T.optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
-
+  optimizer = T.optim.Adam(model.parameters(), lr=lr)
+  train_loss_list = []
+  val_loss_list =[]
   for epoch in range(0, me):
     epoch_train_loss = 0.0  # for one full epoch
     model.train()
@@ -116,6 +118,10 @@ def train(model, train_ds, val_ds, bs, lr, me, le):
       epoch_valid_loss = validate(epoch_valid_loss, model, val_ldr, loss_func)
       print("epoch = %4d  |  train_loss = %0.4f  |  val_loss = %0.4f" % \
         (epoch, epoch_train_loss, epoch_valid_loss)) 
+      train_loss_list.append((epoch,epoch_train_loss))
+      val_loss_list.append((epoch, epoch_valid_loss))
+
+  draw_loss_curve(train_loss_list, val_loss_list)
 
 # -----------------------------------------------------------
 
@@ -167,7 +173,7 @@ def main():
   print("max epochs = 5000 ")
 
   print("\nStarting training ")
-  train(net, train_ds, test_ds, bs=30, lr=0.005, me=3000, le=300)
+  train(net, train_ds, test_ds, bs=30, lr=0.005, me=5000, le=200)
   print("Done ")
 
   # 4. model accuracy

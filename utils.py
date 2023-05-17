@@ -3,6 +3,7 @@ import numpy as np
 import os
 from sklearn import preprocessing
 import joblib
+import matplotlib.pyplot as plt
 
 def min_max_normalizaion(data):
     scaler = preprocessing.MinMaxScaler(feature_range=(0,1))
@@ -11,6 +12,15 @@ def min_max_normalizaion(data):
     joblib.dump(scaler, "scaler.pkl")
     return data_min_max
 
+def draw_loss_curve(train_loss_list, val_loss_list):
+    plt.switch_backend('Agg')
+    plt.figure()                 
+    plt.plot(*zip(*train_loss_list),'b',label = 'train_loss')        
+    plt.plot(*zip(*val_loss_list),'r',label = 'val_loss')     
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend()        
+    plt.savefig("loss.jpg") 
 
 def split_dataset(ratio, input_path):
     df = pd.read_csv(input_path, header=None, delimiter=r"\s+")
