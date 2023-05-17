@@ -1,0 +1,13 @@
+name: multi_regression
+channels:
+  - defaults
+dependencies:
+  - python=3.7.6
+  - numpy
+  - torchvision
+  - pytorch-cuda=11.7
+  - torchaudio
+  - pytorch
+  - pandas
+  - scikit-learn
+prefix: /home/dchangyu/miniconda3/envs/multi_regression
